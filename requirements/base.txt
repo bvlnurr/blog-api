@@ -1,3 +1,4 @@
-Django>=5.2,<6.0
+Django==5.2.19
 djangorestframework
 python-decouple
+django-unfold==0.110.1

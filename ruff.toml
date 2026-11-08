@@ -1,0 +1,5 @@
+[lint]
+ignore = ["RUF012", "EXE002"]
+
+[lint.per-file-ignores]
+"**/migrations/*.py" = ["ALL"]

@@ -2,7 +2,6 @@ from pathlib import Path
 
 from decouple import Config, RepositoryEnv
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = BASE_DIR / "settings" / ".env"
 

@@ -1,0 +1,95 @@
+
+{% extends "admin/base.html" %}
+{% load i18n unfold %}
+
+{% block title %}Blog API Dashboard{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+<div style="padding: 24px 0;">
+    <h1 style="font-size: 26px; font-weight: 700; margin-bottom: 24px;">
+        Blog API Dashboard
+    </h1>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+
+        {% component "unfold/components/card.html" with title="Total users" %}
+            <div style="font-size: 32px; font-weight: 700;">{{ total_users }}</div>
+        {% endcomponent %}
+
+        {% component "unfold/components/card.html" with title="Published posts" %}
+            <div style="font-size: 32px; font-weight: 700;">{{ published_posts }}</div>
+        {% endcomponent %}
+
+        {% component "unfold/components/card.html" with title="Draft posts" %}
+            <div style="font-size: 32px; font-weight: 700;">{{ draft_posts }}</div>
+        {% endcomponent %}
+
+        {% component "unfold/components/card.html" with title="Comments" %}
+            <div style="font-size: 32px; font-weight: 700;">{{ total_comments }}</div>
+        {% endcomponent %}
+    </div>
+
+    <div style="margin-bottom: 24px;">
+        {% component "unfold/components/card.html" with title="Posts per category" %}
+            {% component "unfold/components/chart/bar.html" with data=category_chart height=320 %}
+            {% endcomponent %}
+        {% endcomponent %}
+    </div>
+
+    <div style="margin-bottom: 24px;">
+        {% component "unfold/components/card.html" with title="Top 5 authors" %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Author</th>
+                        <th style="padding: 12px; text-align: left;">Posts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for author in top_authors %}
+                    <tr style="border-top: 1px solid #ddd;">
+                        <td style="padding: 12px;">{{ author.email }}</td>
+                        <td style="padding: 12px;">{{ author.post_count }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="2" style="padding: 12px;">No authors yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcomponent %}
+    </div>
+
+    {% component "unfold/components/card.html" with title="Post status distribution" %}
+        {% component "unfold/components/progress.html" with title="Published" value=published_percent %}
+        {% endcomponent %}
+
+        {% component "unfold/components/progress.html" with title="Drafts" value=draft_percent %}
+        {% endcomponent %}
+    {% endcomponent %}
+</div>
+
+<div class="mt-6 rounded-lg border p-6">
+    <h2 class="mb-4 font-semibold">Post status</h2>
+
+    <p>Published — {{ published_percent }}%</p>
+    <div class="mb-4 h-4 rounded bg-gray-200">
+        <div
+            class="h-4 rounded bg-green-500"
+            style="width: {{ published_percent }}%">
+        </div>
+    </div>
+
+    <p>Drafts — {{ draft_percent }}%</p>
+    <div class="h-4 rounded bg-gray-200">
+        <div
+            class="h-4 rounded bg-orange-500"
+            style="width: {{ draft_percent }}%">
+        </div>
+    </div>
+</div>
+
+{% endblock %}
