@@ -1,7 +1,6 @@
-from settings.base import *
-
 from decouple import config
 
+from settings.base import *
 
 DEBUG = False
 
