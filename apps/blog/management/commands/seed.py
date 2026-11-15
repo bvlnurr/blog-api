@@ -1,9 +1,11 @@
 import random
+from datetime import timedelta
 from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand, CommandError, CommandParser
+from django.utils import timezone
 from django.utils.text import slugify
 from faker import Faker
 
@@ -12,6 +14,12 @@ from apps.blog.models import Category, Comment, Post, Tag
 DEFAULT_USERS = 20
 DEFAULT_POSTS = 100
 DEFAULT_COMMENTS = 500
+
+POST_DATE_RANGE_DAYS = 365
+EDITED_POST_PROBABILITY = 0.30
+MIN_EDIT_DAYS = 1
+MAX_EDIT_DAYS = 30
+SECONDS_PER_DAY = 24 * 60 * 60
 
 SEED_PASSWORD = "TestPassword123!"
 
@@ -191,6 +199,28 @@ class Command(BaseCommand):
 
         Post.objects.bulk_create(posts)
 
+        now = timezone.now()
+
+        for post in posts:
+            seconds_ago = random.randint(
+                0,
+                POST_DATE_RANGE_DAYS * SECONDS_PER_DAY,
+            )
+            post.created_at = now - timedelta(seconds=seconds_ago)
+            post.updated_at = post.created_at
+
+            if random.random() < EDITED_POST_PROBABILITY:
+                max_days = min(
+                    MAX_EDIT_DAYS,
+                    int((now - post.created_at).total_seconds() // SECONDS_PER_DAY),
+                )
+
+                if max_days >= MIN_EDIT_DAYS:
+                    edit_days = random.randint(MIN_EDIT_DAYS, max_days)
+                    post.updated_at = post.created_at + timedelta(days=edit_days)
+
+        Post.objects.bulk_update(posts, ["created_at", "updated_at"])
+
         for post in posts:
             tag_count = random.randint(
                 0, min(MAX_POST_TAGS, len(all_tags))
@@ -218,9 +248,21 @@ class Command(BaseCommand):
                     body=fake.paragraph(nb_sentences=2),
                 )
             )
+
         Comment.objects.bulk_create(comments)
 
+        for comment in comments:
+            available_seconds = max(
+                0,
+                int((now - comment.post.created_at).total_seconds()),
+            )
+            random_seconds = random.randint(0, available_seconds)
 
+            comment.created_at = comment.post.created_at + timedelta(
+                seconds=random_seconds,
+            )
+
+        Comment.objects.bulk_update(comments, ["created_at"])
 
         self.stdout.write(
             f"Categories: {len(new_categories)} created"

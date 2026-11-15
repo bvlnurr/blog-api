@@ -67,3 +67,38 @@ python3 manage.py seed --clear
 
 ### Tags
 ![Tags](docs/screenshots/Tags.png)
+
+## Queries
+
+Run all read-only ORM queries:
+
+```bash
+python3 manage.py queries
+```
+
+Run a specific query:
+
+```bash
+python3 manage.py queries --number 31
+```
+
+Show SQL:
+
+```bash
+python3 manage.py queries --number 6 --sql
+```
+
+Example output:
+
+```text
+#6 has_drafts - 1 SQL query
+True
+```
+
+Queries 40–44 modify the database and run only with `--number`.
+
+Reset test data:
+
+```bash
+python3 manage.py seed --clear
+```
